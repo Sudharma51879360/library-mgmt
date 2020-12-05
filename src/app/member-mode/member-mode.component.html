@@ -1,0 +1,154 @@
+<div class="container-fluid">
+    <div class="banner text-center">{{ 'Library Management System' | uppercase }} </div>
+    <div class="user-info-div row">
+        <div class="col-sm-6">{{ empname | titlecase }} </div>
+        <div class="col-sm-6 row">
+            <div class="col-sm-4 text-right">
+                <span class="login-time-disp"> User Type : Member </span>
+            </div>
+            <div class="col-sm-5 text-right">
+                <span class="login-time-disp"> Date & Time : {{ today | date:'short' }} </span>
+            </div>
+            <div class="col-sm-3 logout-btn text-right" (click)="logoutUser()">
+                Logout&nbsp;<i class="fa fa-sign-out" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="container text-center pad-top">
+        <form (submit)="searchBook()" #searchForm="ngForm">
+            <div class="row col-md-12 text-center">
+                <div class="col-md-3 text-right search_by">Search Book By:</div>
+                <div class="col-md-2 text-center">
+                    <select class="form-control search_by_dd" [(ngModel)]="searchOpt" name="searchby"
+                        #searchby="ngModel">
+                        <option *ngFor='let opt of searchOpts' [value]="opt[0]" [innerHTML]="opt[1]"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div *ngIf="(searchOpt == 'A' || searchOpt == 'B') else category">
+                        <input class="form-control search_by_name" type="text" [(ngModel)]="searchText"
+                            name="searchvalue" placeholder="Type Your Input..." autocomplete="off" minlength="2"
+                            maxlength="15" required #searchvalue="ngModel" />
+                    </div>
+                    <ng-template #category>
+                        <select class="form-control search_by_dd" [(ngModel)]="searchCatg" name="searchcatg"
+                            #searchcatg="ngModel" required>
+                            <option *ngFor='let opt of searchCatgs' [value]="opt" [innerHTML]="opt"></option>
+                        </select>
+                    </ng-template>
+                </div>
+                <div class="col-md-2 text-left">
+                    <button class="btn btn-primary" type="submit" [disabled]="!searchForm.valid">Search</button>
+                </div>
+                <div class="col-md-2 text-left">
+                    <button class="btn btn-success" type="button" (click)="showAll()">Show All</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="container text-center book-disp" *ngIf="(bookList != null && bookList.length > 0) else nobooks">
+        <div *ngFor='let book of bookList; let i = index'>
+            <div class="row col-md-12 text-center">
+                <div class="col-md-5 text-right">
+                    <img class="img-dim" src="{{ book.img }}" alt="No Preview Available">
+                </div>
+                <div class="col-md-7 text-left">
+                    <table class="noborder">
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Title : </b></td>
+                            <td class="noborder"><b> {{ book.bookname | titlecase }} </b></td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Author : </b></td>
+                            <td class="noborder"> {{ book.author | titlecase }}</td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Price : </b></td>
+                            <td class="noborder"> {{ book.price | currency:'INR':'symbol':'1.2-2' }}</td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Category : </b></td>
+                            <td class="noborder"> {{ book.category | titlecase }}</td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Book ID : </b></td>
+                            <td class="noborder"> {{ book.bookId }}</td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Available : </b></td>
+                            <td class="noborder"> {{ bookCopies.get(book.bookId) }} Copies</td>
+                        </tr>
+                        <tr class="noborder">
+                            <td class="noborder text-right"><b>Action : </b></td>
+                            <td class="noborder" *ngIf="(bookBorrowStatus.get(book.bookId) == 1 || bookBorrowStatus.get(book.bookId) == 2) else bookborrow">
+                                <button *ngIf="(bookBorrowStatus.get(book.bookId) == 1)" class="btn btn-warning" type="button" (click)="openReturnConfModel(book.bookId, book.bookname)" data-toggle="modal" data-target="#returnConfModal" >Return Book</button>
+                                <label *ngIf="(bookBorrowStatus.get(book.bookId) == 2)" class="return-pending">Book return request is pending for approval</label>
+                            </td>
+                            <ng-template class="noborder" #bookborrow>
+                                <div *ngIf="(bookBorrowStatus.get(book.bookId) == -1) else borrowpending">
+                                    <div *ngIf="(bookCopies.get(book.bookId) > 0) else notavailable">
+                                        <button class="btn btn-success" type="button" (click)="openBorrowConfModel(book.bookId, book.bookname)" data-toggle="modal" data-target="#borrowConfModal" >Borrow Book</button>
+                                    </div>
+                                    <ng-template #notavailable class="text-left">
+                                        <label class="oot">This book is currently out of stock</label>
+                                    </ng-template>
+                                </div>
+                                <ng-template #borrowpending class="text-left">
+                                    <label class="borrow-pending">Book borrow request is pending for approval</label>
+                                </ng-template>                                
+                            </ng-template>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <hr />
+        </div>
+    </div>
+    <ng-template #nobooks class="row col-md-12 text-center">
+        <label class="not-found">No Books Found...!</label>
+    </ng-template>    
+</div>
+
+<!-- Modal -->
+<div class="modal fade" *ngIf="showBorrowConfModal" id="borrowConfModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> 
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure want to raise borrow request for the book <b>'{{ confbookname }}'</b>?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal" (click)="borrowBook(confbookid)">Borrow Request</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" *ngIf="showReturnConfModal" id="returnConfModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> 
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure want to raise return request for the book <b>'{{ confbookname }}'</b>?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-warning" data-dismiss="modal" (click)="returnBook(confbookid)">Return Request</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>    

@@ -1,0 +1,124 @@
+
+  .banner{
+    position: relative;
+    color: aliceblue;
+    background-color: #888;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 60px;
+    padding: 0px !important;
+    padding-top: 7px !important;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: cursive;
+  }
+
+  .user-info-div{
+    position: relative;
+    color: #666;
+    background-color: floralwhite;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 40px;
+    margin: 0px !important;
+    padding: 0px !important;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  .login-time-disp{
+    font-size: 12px;
+    font-weight: normal;
+  }
+
+  .logout-btn{
+    padding-top: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .nopad-top-bottom{
+    padding: 0px 10px !important;
+  }
+  
+  .pad-top{
+    margin-top: 10px !important;
+  }
+
+  .search_by{
+    font-size: 14px;
+    font-weight: bold;
+    font-family: sans-serif;
+    padding: 5px 0px 0px 0px !important;
+  }
+
+  .search_by_radio{
+    top: 4px;
+  }
+  .search_by_dd{
+    width: 100%;
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+
+  .search_by_name{
+    width: 100%;
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+
+  .radio-label{
+    font-family: sans-serif;
+    font-size: 15px;
+  }
+
+  .disp-div{
+    padding: 5px 0px;
+    margin-top: 5px !important;
+    height: 435px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+
+  .disp-grid{
+    padding: 5px;
+    margin-top: 10px !important;
+    height: 375px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .noborder{
+    border: 0px !important;
+    font-size: 13px;
+    font-weight: normal;
+    font-family: sans-serif;
+    padding: 0px !important;
+  }
+
+  .img-dim{
+    height: 130px !important;
+    width: 100px !important;
+    font-size: 11px;
+    font-weight: normal;
+  }
+
+  .not-found{
+    position: relative;
+    left: 0%;
+    top: 5px;
+    font-size: 15px;
+    color: red;
+  }
+
+  .no-borrower{
+    position: relative;
+    left: 0%;
+    top: 0px;
+    font-size: 14px;
+    color: red;
+  }

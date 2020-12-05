@@ -1,0 +1,247 @@
+<div class="container-fluid">
+    <div class="banner text-center">{{ 'Library Management System' | uppercase }} </div>
+    <div class="user-info-div row">
+        <div class="col-sm-6">{{ empname | titlecase }} </div>
+        <div class="col-sm-6 row">
+            <div class="col-sm-4 text-right">
+                <span class="login-time-disp"> User Type : Librarian </span>
+            </div>
+            <div class="col-sm-5 text-right">
+                <span class="login-time-disp"> Date & Time : {{ today | date:'short' }} </span>
+            </div>
+            <div class="col-sm-3 logout-btn text-right" (click)="logoutUser()">
+                Logout&nbsp;<i class="fa fa-sign-out" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light nopad-top-bottom">
+        <a class="navbar-brand" href="#">Menu</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/librarian-mode/{{username}}">Home</a>
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/borrow-requests/{{username}}">Book Borrow Requests</a>
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/return-requests/{{username}}">Book Return Requests</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container text-center pad-top">
+        <div class="row col-sm-12 text-center">
+            <div class="col-md-6 text-right search_by">Show Details By:</div>
+            <div class="col-md-1 text-left search_by_radio">
+                <input class="radio-label" type="radio" name="showby" id="book" value="B" (click)="showBy('B')" checked>&nbsp;<label for="book">Book</label>
+            </div>
+            <div class="col-md-2 text-left search_by_radio">
+                <input class="radio-label" type="radio" name="showby" id="member" value="M" (click)="showBy('M')">&nbsp;<label for="member">Member</label>
+            </div>
+            <div class="col-md-3 text-center"></div>
+        </div>
+
+        <div class="container text-center disp-div" *ngIf="(showby != null && showby != undefined && showby == 'B') else memberview">
+            <form (submit)="searchBook()" #searchBookForm="ngForm">
+                <div class="row col-md-12 text-center">
+                    <div class="col-md-3 text-right search_by">Search Book By:</div>
+                    <div class="col-md-2 text-center">
+                        <select class="form-control search_by_dd" [(ngModel)]="searchOpt" name="searchby"
+                            #searchby="ngModel">
+                            <option *ngFor='let opt of searchOpts' [value]="opt[0]" [innerHTML]="opt[1]"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div *ngIf="(searchOpt == 'A' || searchOpt == 'B') else category">
+                            <input class="form-control search_by_name" type="text" [(ngModel)]="searchText"
+                                name="searchvalue" placeholder="Type Your Input..." autocomplete="off" minlength="2"
+                                maxlength="15" required #searchvalue="ngModel" />
+                        </div>
+                        <ng-template #category>
+                            <select class="form-control search_by_dd" [(ngModel)]="searchCatg" name="searchcatg"
+                                #searchcatg="ngModel" required>
+                                <option *ngFor='let opt of searchCatgs' [value]="opt" [innerHTML]="opt"></option>
+                            </select>
+                        </ng-template>
+                    </div>
+                    <div class="col-md-2 text-left">
+                        <button class="btn btn-primary" type="submit" [disabled]="!searchBookForm.valid">Search</button>
+                    </div>
+                    <div class="col-md-2 text-left">
+                        <button class="btn btn-success" type="button" (click)="showAllBook()">Show All</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="disp-grid">
+                <table class="table table-bordered">
+                    <tr class="row col-md-12" style="padding: 0px;margin: 0px;">
+                        <th class="col-md-1">SN</th>
+                        <th class="col-md-2">Book Cover</th>
+                        <th class="col-md-4">Book Details</th>
+                        <th class="col-md-1">Stacks</th>                        
+                        <th class="col-md-4">Borrowers (copy-code)</th>
+                    </tr>
+                    <tr class="row col-md-12" style="padding: 0px;margin: 0px;" *ngFor='let book of bookList; let i = index'>
+                        <td class="col-md-1 text-center">{{ i+1 }}</td>
+                        <td class="col-md-2 text-center">
+                            <img class="img-dim" src="{{ book.img }}" alt="No Preview Available">
+                        </td>
+                        <td class="col-md-4 text-left">
+                            <table class="noborder">
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Title : </b></td>
+                                    <td class="noborder"><b> &nbsp;{{ book.bookname | titlecase }} </b></td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Author : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.author | titlecase }}</td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Price : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.price | currency:'INR':'symbol':'1.2-2' }}</td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Category : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.category | titlecase }}</td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Book ID : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.bookId }}</td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Total : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.copies }} Copies</td>
+                                </tr> 
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Available : </b></td>
+                                    <td class="noborder"> &nbsp;{{ bookCopies.get(book.bookId) }} Copies</td>
+                                </tr>                                
+                            </table>
+                        </td>
+                        <td class="col-md-1 text-left">
+                            <table class="noborder">
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Row : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.location.row }} </td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Rack : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.location.rack }} </td>
+                                </tr>
+                                <tr class="noborder">
+                                    <td class="noborder text-right"><b>Shelf : </b></td>
+                                    <td class="noborder"> &nbsp;{{ book.location.shelf }} </td>
+                                </tr>
+                            </table>
+                        </td>                        
+                        <td class="col-md-4 text-left">
+                            <div *ngIf="(borrowerList.get(book.bookId) != null && borrowerList.get(book.bookId).length > 0) else noborrower">
+                                <table class="noborder">
+                                    <tr class="noborder" *ngFor='let borrower of borrowerList.get(book.bookId); let j = index'>
+                                        <td class="noborder">&nbsp;{{ j+1 }}.&nbsp;{{ borrower[1] }} ({{ borrower[0] }}) (<span style='color: rgb(2, 119, 197);'>{{ borrower[2] }}</span>)</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <ng-template #noborrower>
+                                <label class="no-borrower">No Borrower</label>
+                            </ng-template>
+                        </td>
+                    </tr>
+                    <tr class="row col-md-12" style="padding: 0px;margin: 0px;" *ngIf="(bookList == null || bookList.length &lt;= 0)">
+                        <td class="col-md-12"><label class="not-found">No Book Borrow Details Found...!</label></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <ng-template #memberview>
+            <form (submit)="searchMember()" #searchMemberForm="ngForm">
+                <div class="row col-md-12 text-center">
+                    <div class="col-md-4 text-right search_by">Search Member:</div>
+                    <div class="col-md-4 text-left">
+                        <input class="form-control search_by_name" type="text" [(ngModel)]="searchMemberTxt"
+                        name="searchmemberval" placeholder="Type Your Input..." autocomplete="off" minlength="2"
+                        maxlength="15" required #searchmemberval="ngModel" />
+                    </div>                    
+                    <div class="col-md-2 text-left">
+                        <button class="btn btn-primary" type="submit" [disabled]="!searchMemberForm.valid">Search</button>
+                    </div>
+                    <div class="col-md-2 text-left">
+                        <button class="btn btn-success" type="button" (click)="showAllMembers()">Show All</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="disp-grid">
+
+                <div id="accordion" *ngIf="(membersList != null && membersList.size > 0) else nomemberborrowdata">
+                    <div class="card" *ngFor='let data of membersList | keyvalue; let i = index'>
+                        <div class="card-header" id="heading{{i}}">
+                            <h5 class="mb-0 text-left">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" [attr.data-target]="'#collapse'+i" aria-expanded="false" [attr.aria-controls]="'collapse'+i">
+                                    {{i+1}}. {{data.key}}
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse{{i}}" class="collapse" [attr.aria-labelledby]="'heading'+i" data-parent="#accordion">
+                            <div class="card-body">
+                                <table class="table table-bordered">
+                                    <tr class="row col-sm-12" style="padding: 0px;margin: 0px;" *ngFor='let book of data.value; let j = index'>
+                                        <td class="col-sm-1 text-center">
+                                            {{j+1}}
+                                        </td>
+                                        <td class="col-sm-3 text-center">
+                                            <img class="img-dim" src="{{ book.bookdata[6] }}" alt="No Preview Available">
+                                        </td>
+                                        <td class="col-sm-4">
+                                            <table class="noborder">
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Title : </b></td>
+                                                    <td class="noborder text-left"><b> &nbsp;{{ book.bookdata[1] | titlecase }} </b></td>
+                                                </tr>
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Author : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ book.bookdata[2] | titlecase }}</td>
+                                                </tr>
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Price : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ book.bookdata[3] | currency:'INR':'symbol':'1.2-2' }}</td>
+                                                </tr>
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Category : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ book.bookdata[4] | titlecase }}</td>
+                                                </tr>
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Book ID : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ book.bookdata[0] }}</td>
+                                                </tr> 
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Total : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ book.bookdata[5] }} Copies</td>
+                                                </tr>  
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Available : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;{{ bookCopies.get(book.bookdata[0]) }} Copies</td>
+                                                </tr>                                                                           
+                                            </table>
+                                        </td>
+                                        <td class="col-sm-4">
+                                            <table class="noborder">
+                                                <tr class="noborder">
+                                                    <td class="noborder text-right"><b>Book Copy Code : </b></td>
+                                                    <td class="noborder text-left"> &nbsp;<span style='color: rgb(2, 119, 197);'>{{ book.bookdata[7] }}</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ng-template class="row col-md-12 text-center" #nomemberborrowdata>
+                    <label class="not-found">No Book Borrow Details Found...!</label>
+                </ng-template>
+            </div>
+        </ng-template>
+    </div>
+</div>

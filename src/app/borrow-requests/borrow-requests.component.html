@@ -1,0 +1,135 @@
+<div class="container-fluid">
+    <div class="banner text-center">{{ 'Library Management System' | uppercase }} </div>
+    <div class="user-info-div row">
+        <div class="col-sm-6">{{ empname | titlecase }} </div>
+        <div class="col-sm-6 row">
+            <div class="col-sm-4 text-right">
+                <span class="login-time-disp"> User Type : Librarian </span>
+            </div>
+            <div class="col-sm-5 text-right">
+                <span class="login-time-disp"> Date & Time : {{ today | date:'short' }} </span>
+            </div>
+            <div class="col-sm-3 logout-btn text-right" (click)="logoutUser()">
+                Logout&nbsp;<i class="fa fa-sign-out" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light nopad-top-bottom">
+        <a class="navbar-brand" href="#">Menu</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/librarian-mode/{{username}}">Home</a>
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/borrow-requests/{{username}}">Book Borrow Requests</a>
+                <a class="nav-item nav-link" routerLinkActive="active" routerLink="/return-requests/{{username}}">Book Return Requests</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container text-center pad-top">
+        <div class="text-center page-title"><u>Book Borrow Requests</u></div>
+        <div class="container text-center disp-div">
+            <table class="table table-bordered">
+                <tr class="row col-md-12" style="padding: 0px;margin: 0px;">
+                    <th class="col-md-1">SN</th>
+                    <th class="col-md-2">Requester Name</th>
+                    <th class="col-md-2">Book Cover</th>  
+                    <th class="col-md-4">Book Details</th>                                          
+                    <th class="col-md-3">Borrow Request Action</th>
+                </tr>
+                <tr class="row col-md-12" style="padding: 0px;margin: 0px;" *ngFor='let borrowdata of borrowRequests; let i = index'>
+                    <td class="col-md-1 text-center">{{ i+1 }}</td>
+                    <td class="col-md-2 text-left">
+                        {{ borrowdata.requestername | titlecase }} ({{ borrowdata.requestercode }})
+                    </td>
+                    <td class="col-md-2 text-center">
+                        <img class="img-dim" src="{{ borrowdata.bookdata[6] }}" alt="No Preview Available">
+                    </td>
+                    <td class="col-md-4 text-left">
+                        <table class="noborder">
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Title : </b></td>
+                                <td class="noborder"><b> &nbsp;{{ borrowdata.bookdata[0] | titlecase }} </b></td>
+                            </tr>
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Author : </b></td>
+                                <td class="noborder"> &nbsp;{{ borrowdata.bookdata[1] | titlecase }}</td>
+                            </tr>
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Price : </b></td>
+                                <td class="noborder"> &nbsp;{{ borrowdata.bookdata[2] | currency:'INR':'symbol':'1.2-2' }}</td>
+                            </tr>
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Category : </b></td>
+                                <td class="noborder"> &nbsp;{{ borrowdata.bookdata[3] | titlecase }}</td>
+                            </tr>
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Book ID : </b></td>
+                                <td class="noborder"> &nbsp;{{ borrowdata.bookdata[4] }}</td>
+                            </tr>
+                            <tr class="noborder">
+                                <td class="noborder text-right"><b>Copy Code : </b></td>
+                                <td class="noborder"> &nbsp;{{ borrowdata.bookdata[5] }}</td>
+                            </tr>                                                            
+                        </table>
+                    </td>                    
+                    <td class="col-md-3 text-left">
+                        <button class="btn btn-success" type="button" (click)="openBorrowApproveModel(borrowdata.bookdata[4], borrowdata.bookdata[0], borrowdata.requestercode, borrowdata.requestername)" data-toggle="modal" data-target="#borrowApproveModal">Approve</button>
+                        &nbsp;
+                        <button class="btn btn-danger" type="button" (click)="openBorrowRejectModel(borrowdata.bookdata[4], borrowdata.bookdata[0], borrowdata.requestercode, borrowdata.requestername)" data-toggle="modal" data-target="#borrowRejectModal">Reject</button>
+                    </td>
+                </tr>
+                <tr class="row col-md-12" style="padding: 0px;margin: 0px;" *ngIf="(borrowRequests == null || borrowRequests.length &lt;= 0)">
+                    <td class="col-md-12"><label class="not-found">No Book Borrow Request Found...!</label></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" *ngIf="showBorrowApproveModal" id="borrowApproveModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> 
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure want to approve book borrow request?<br/>
+            Book Title : <b>{{ modelbookname }}</b><br/>
+            Requester : <b>{{ modelrequestername }}</b>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal" (click)="borrowBookApprove(modelbookid,modelrequestercode)">Approve Request</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" *ngIf="showBorrowRejectModal" id="borrowRejectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> 
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure want to reject book borrow request?<br/>
+            Book Title : <b>{{ modelbookname }}</b><br/>
+            Requester : <b>{{ modelrequestername }}</b>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="borrowBookReject(modelbookid,modelrequestercode)">Reject Request</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>
