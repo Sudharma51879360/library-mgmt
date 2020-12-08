@@ -1,0 +1,24 @@
+Admin user Login (1 Librarian)
+Username : ad
+Password : ad
+
+
+Normal user Login (4 Member)
+Username : e1
+Password : e1
+=================
+Username : e2
+Password : e2
+=================
+Username : e3
+Password : e3
+=================
+Username : e4
+Password : e4
+
+
+Note : plz start json-server before project run.
+Server Command : json-server --watch db.json
+Project Run Command : ng-serve
+
+Database : db.json (mock db)
